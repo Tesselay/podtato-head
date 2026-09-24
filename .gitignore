@@ -1,3 +1,4 @@
 .env
 .github/workflows/cosign.*
 temp/
+delivery/AWS/CLI/.aws/credentials
