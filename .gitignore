@@ -2,3 +2,4 @@
 .github/workflows/cosign.*
 temp/
 delivery/AWS/CLI/.aws/credentials
+delivery/AWS/CLI/.aws/cli/cache
