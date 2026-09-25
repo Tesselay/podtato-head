@@ -9,13 +9,11 @@ BOOTSTRAP_SCRIPT := bootstrap.sh
 
 
 # ----- Phony Targets ------------------------------------------------------------------
-.PHONY: all bootstrap
+.PHONY: all $(AWS_ENV_PATH)
 
-all: bootstrap
-
-bootstrap: $(AWS_ENV_PATH)
+all: $(AWS_ENV_PATH)
 
 
 # ----- Bootstrap ----------------------------------------------------------------------
-$(AWS_ENV_PATH): $(BOOTSTRAP_SCRIPT)
+$(AWS_ENV_PATH):
 	./$(BOOTSTRAP_SCRIPT) $(AWS_CLI_PATH) $(AWS_ENV_PATH)
