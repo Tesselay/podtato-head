@@ -10,7 +10,7 @@ function add-or-update-env-var {
     fi
 
     if grep -q "^${_ENV_KEY}=" "${_ENV_FILE}"; then
-        _KEY=$_ENV_KEY _VAL=$_ENV_VAL -pi -e 's/^\Q$ENV{_KEY}\E=.*/$ENV{_KEY}=$ENV{_VAL}/' "$_ENV_FILE"
+        _KEY=$_ENV_KEY _VAL=$_ENV_VAL perl -pi -e 's/^\Q$ENV{_KEY}\E=.*/$ENV{_KEY}=$ENV{_VAL}/' "$_ENV_FILE"
     else
         echo "${_ENV_KEY}=${_ENV_VAL}" >> "${_ENV_FILE}"
     fi

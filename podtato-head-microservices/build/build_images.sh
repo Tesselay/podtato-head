@@ -16,7 +16,7 @@
 declare -r this_dir=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 declare -r app_dir=$(cd ${this_dir}/.. && pwd)
 declare -r root_dir=$(cd ${this_dir}/../.. && pwd)
-if [[ -e ${root_dir}/.env ]]; then 
+if [[ -e ${root_dir}/.env ]]; then
     echo "INFO: sourcing env vars from .env in repo root"
     source ${root_dir}/.env
 fi
@@ -51,7 +51,9 @@ export COSIGN_PASSWORD="${COSIGN_PASSWORD}"
 if [[ -z "${RELEASE_BUILD}" ]]; then
     image_name=${registry_hostname}/${registry_user}/podtato-head/entry
 else
+    echo "TEST: ${registry_hostname}"
     image_name=${registry_hostname}/podtato-head/entry
+    echo "TEST: ${image_name}"
 fi
 
 build_image \
