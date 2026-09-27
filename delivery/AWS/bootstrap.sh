@@ -1,6 +1,9 @@
 #!/bin/bash
 # Shellscript for env var definition since bash is kinder with shell variables
 
+SCRIPT_DIR=$(dirname -- "$(readlink -e -- "$0")")
+source "$SCRIPT_DIR/../../scripts/env-files.sh"
+
 declare -r AWS_CLI_PATH="$1"
 declare -r AWS_ENV_PATH="$2"
 declare GENERATE_KEY="${3:-false}"
@@ -23,6 +26,7 @@ if [[ -e ${AWS_ENV_PATH} ]]; then
         GENERATE_KEY=true
     fi
 else
+    touch ${AWS_ENV_PATH}
     GENERATE_KEY=true
 fi
 
@@ -34,9 +38,6 @@ if $GENERATE_KEY; then
         --query KeyMetadata.KeyId --output text --no-cli-pager \
         | sed $'s/[^[:print:]\t]//g'
     )"
-    if [[ -e ${AWS_ENV_PATH} ]]; then
-        _KEYID="$AWS_KEYID_COSIGN" perl -pi -e 's/^AWS_KEYID_COSIGN=.*/AWS_KEYID_COSIGN=$ENV{_KEYID}/' ${AWS_ENV_PATH}
-    else
-        echo "AWS_KEYID_COSIGN=$AWS_KEYID_COSIGN" > ${AWS_ENV_PATH}
-    fi
+    add-or-update-env-var "AWS_KEYID_COSIGN" "$AWS_KEYID_COSIGN" "${AWS_ENV_PATH}"
+    add-or-update-env-var "COSIGN_KEY_PATH" "awskms:///$AWS_KEYID_COSIGN" "${AWS_ENV_PATH}"
 fi
