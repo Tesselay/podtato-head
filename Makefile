@@ -1,12 +1,38 @@
-### login to registry ghcr.io using GITHUB_USER and GITHUB_TOKEN env vars in environment or .env file is expected
-###     (these are the implicit values in the empty parameters - "" - below)
-### TODO(?): genericize the registry and login and move logic to Makefile
+# ----- Configuration ------------------------------------------------------------------
+.DEFAULT_GOAL := run-local
 
+
+# ----- Phony Targets ------------------------------------------------------------------
+.PHONY: microservices build-microservices-images push-microservices-images test-microservices \
+		server build-server-images push-server-images test-server \
+		bootstrap install-requirements \
+	 	run-local stop-local remove-local \
+		test podtato-head-verify
+
+bootstrap: install_requirements
+microservices: build-microservices-images push-microservices-images test-microservices
+server: build-server-images push-server-images test-server
+test: podtato-head-verify
+
+
+# ----- Bootstrap ----------------------------------------------------------------------
 install-requirements:
 	scripts/requirements.sh /usr/local/bin
 
-### podtato-head-microservices
 
+# ----- Local --------------------------------------------------------------------------
+run-local:
+	$(MAKE) -C delivery/kind create
+	$(MAKE) -C delivery/kind run-local
+
+stop-local:
+	$(MAKE) -C delivery/kind stop-local
+
+remove-local:
+	$(MAKE) -C delivery/kind stop-local remove
+
+
+# ----- Microservices ------------------------------------------------------------------
 podtato-head-verify:
 	$(MAKE) -C podtato-head-microservices vet
 	$(MAKE) -C podtato-head-microservices fmt
@@ -38,8 +64,8 @@ test-microservices: push-microservices-images
 		scratch '' true
 	IMAGE_VERSION=test scripts/test_with_kind.sh
 
-### podtato-head-server
 
+# ----- Server -------------------------------------------------------------------------
 build-server-images:
 	podtato-head-server/build/build_image.sh '' '' '' \
 		scratch '' false
@@ -65,5 +91,3 @@ test-server: push-server-images
 	podtato-head-server/build/test_image.sh '' '' '' distroless
 	podtato-head-server/build/test_image.sh '' '' '' ubi
 	podtato-head-server/build/test_image.sh '' '' '' chainguard
-
-.PHONY: build-microservices-images push-microservices-images test-microservices install-requirements build-server-images push-server-images test-server podtato-head-verify
