@@ -71,6 +71,6 @@ function build_image () {
             --format table \
             --severity "HIGH,CRITICAL" \
             --no-progress \
-                ${image_name}
+            ${image_name}:${image_tag}
     fi
 }
