@@ -44,12 +44,13 @@ function forward-cluster {
     done
 
     if (( $_WAIT >= $_MAX_WAIT )); then
-        echo "Pods not up after $_MAX_WAIT seconds, something is wrong."
+        echo "ERROR: Pods not up after $_MAX_WAIT seconds, something is wrong."
         return 1
     fi
 
-
-    kubectl port-forward --cluster "kind-$_CLUSTER_NAME" --namespace "$_CLUSTER_NAMESPACE" --address "$_SRV_ADDR" svc/podtato-head-entry "${_SRV_PORT}:9000" &
+    if ! ss -tnlp | awk '/127.0.0.1:9000/{ print $6 }' | grep "kubectl" &> /dev/null; then
+        kubectl port-forward --cluster "kind-$_CLUSTER_NAME" --namespace "$_CLUSTER_NAMESPACE" --address "$_SRV_ADDR" svc/podtato-head-entry "${_SRV_PORT}:9000" &
+    fi
 }
 
 function verify-cluster-state {
