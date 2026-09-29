@@ -48,7 +48,26 @@ function forward-cluster {
         return 1
     fi
 
+
     kubectl port-forward --cluster "kind-$_CLUSTER_NAME" --namespace "$_CLUSTER_NAMESPACE" --address "$_SRV_ADDR" svc/podtato-head-entry "${_SRV_PORT}:9000" &
+}
+
+function verify-cluster-state {
+    declare -r _CLUSTER_NAME="$1"
+    declare -r _CLUSTER_NAMESPACE="$2"
+    declare -r _SRV_ADDRESS="$3"
+    declare -r _SRV_PORT="$4"
+    declare _STATE=0
+
+    if [[ $(kubectl get pods --cluster "kind-$_CLUSTER_NAME" --namespace "$_CLUSTER_NAMESPACE" --field-selector="status.phase=Running" | grep -c "Running") == 6 ]]; then
+        :
+    else
+        _STATE=1
+    fi
+
+    curl http://${_SRV_ADDRESS}:${_SRV_PORT}
+
+    return $_STATE
 }
 
 function stop-forward {
@@ -65,6 +84,7 @@ function remove-cluster {
     kind delete cluster --name "$_CLUSTER_NAME"
 }
 
+
 case $CALL in
     "CREATE")
         create-cluster "$CLUSTER_NAME"
@@ -74,6 +94,9 @@ case $CALL in
         ;;
     "FORWARD")
         forward-cluster "$CLUSTER_NAME" "$CLUSTER_NAMESPACE" "$SERVER_ADDRESS" "$SERVER_PORT"
+        ;;
+    "TEST")
+        verify-cluster-state "$CLUSTER_NAME" "$CLUSTER_NAMESPACE" "$SERVER_ADDRESS" "$SERVER_PORT"
         ;;
     "KILL")
         stop-forward

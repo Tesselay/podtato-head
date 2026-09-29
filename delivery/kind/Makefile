@@ -7,11 +7,12 @@ SERVER_PORT       := 9000
 
 
 # ----- Phony Targets ------------------------------------------------------------------
-.PHONY: create-cluster apply-manifest forward-load-balancer stop-forward \
-	    create run-local stop-local
+.PHONY: create-cluster apply-manifest forward-load-balancer stop-forward verify-cluster-state \
+	    create run-local test-local stop-local
 
 create: create-cluster apply-manifest
 run-local: forward-load-balancer
+test-local: verify-cluster-state
 stop-local: stop-forward
 
 
@@ -24,6 +25,9 @@ apply-manifest:
 
 forward-load-balancer:
 	./kind.sh "FORWARD" $(CLUSTER_NAME) $(CLUSTER_NAMESPACE) "" $(SERVER_ADDRESS) $(SERVER_PORT)
+
+verify-cluster-state:
+	./kind.sh "TEST" $(CLUSTER_NAME) $(CLUSTER_NAMESPACE) "" $(SERVER_ADDRESS) $(SERVER_PORT)
 
 stop-forward:
 	./kind.sh "KILL"

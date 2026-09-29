@@ -6,7 +6,7 @@
 .PHONY: microservices build-microservices-images push-microservices-images test-microservices \
 		server build-server-images push-server-images test-server \
 		bootstrap install-requirements \
-	 	run-local stop-local remove-local \
+	 	run-local test-local stop-local remove-local \
 		test podtato-head-verify
 
 bootstrap: install_requirements
@@ -24,6 +24,10 @@ install-requirements:
 run-local:
 	$(MAKE) -C delivery/kind create
 	$(MAKE) -C delivery/kind run-local
+	$(MAKE) -C delivery/kind test-local
+
+test-local:
+	$(MAKE) -C delivery/kind test-local
 
 stop-local:
 	$(MAKE) -C delivery/kind stop-local
